@@ -1,0 +1,3 @@
+;; total by cost code from JSON line items
+totals s = json s | group (_.code) | mapv (map (i => i.qty * i.rate) >> sum)
+test totals "[{\"code\":\"05 12\",\"qty\":2,\"rate\":10.5},{\"code\":\"05 50\",\"qty\":1,\"rate\":4},{\"code\":\"05 12\",\"qty\":1,\"rate\":3}]" == {"05 12": 24.0, "05 50": 4}

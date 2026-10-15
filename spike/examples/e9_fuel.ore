@@ -1,0 +1,2 @@
+spin n = spin (n+1)
+main = spin 0

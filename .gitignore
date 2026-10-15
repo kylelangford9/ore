@@ -1,0 +1,7 @@
+/target/
+_vendor/
+__pycache__/
+*.pyc
+node_modules/
+.ore/
+*.cwasm

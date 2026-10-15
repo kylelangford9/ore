@@ -1,0 +1,3 @@
+tons csv = csv | lines | drop 1 | map (split "," >> row | group (_.shape)
+total xs = xs | map length | sum
+names = [1..5]

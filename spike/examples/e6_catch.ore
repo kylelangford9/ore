@@ -1,0 +1,5 @@
+safe s = int s catch 0
+pos n = n > 0 ? n : fail "not positive"
+test safe "12" + safe "x" == 12
+test (pos 5 catch -1) == 5
+test (pos 0 catch e => "caught: $e") == "caught: not positive"

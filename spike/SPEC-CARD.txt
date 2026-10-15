@@ -1,0 +1,49 @@
+ORE v0. Strict, typed by inference, pure unless the host grants an effect. Write the least code that does the job.
+LINES  One item per line. A line that starts with a space continues the item above. ;; starts a comment.
+  f a b = e            define; arguments are patterns; repeat f for more clauses, tried top to bottom
+  f a if c = e         guarded clause
+  f : Int -> Int       optional signature
+  type T a = A Int | B a [a]     sum type; constructors are Capitalized
+  test e               must be True; runs on every check; pure
+  main = e             program entry
+EXPR, loosest first
+  x = e; rest          bind (any pattern: (a,b) = p; rest)      g y = e; rest   local function
+  e; rest              run e for its effect, then rest
+  x => e   a b => e    lambda; a body that binds needs parens: x => (y = x*2; y+1)
+  e catch v            on fail use v        e catch m => v   m is the fail message
+  e | f                pipe: f e            f >> g   compose, left to right
+  c ? a : b
+  || && == != < <= > >= .. ++ + - * / // % **   a..b is a up to b-1; ++ joins lists, strings, maps; / gives Float; // floors
+  -x !x
+  f x y                call; functions are curried; the data argument goes last so pipes read left to right
+  e.k e.0 e@i          field, tuple slot, index (@-1 is last); these bind tighter than calls: f r.x is f (r.x)
+ATOMS  1 2.5 1e9 0xff 1_000  "s $x ${e}" (\$ for a dollar)  True False ()  (a,b)  [a,b,..xs]
+  {k: v, k, ..r} record      {"k": v} map      {} empty map
+  (_*2) (_.k) (-_.1) (_+_)   parentheses holding _ make a lambda, one argument per _, left to right
+  (+) (++) (==)              an operator as a function
+  match e {P => e, P if c => e, _ => e}
+PATTERNS  _ x 1 "s" True C p q (p,q) [] [p,q] [p,..t] {k, k: p}
+TYPES  Int Float Str Bool () (a,b) [a] {k: T} Map k v  a -> b.  Int and Float mix; the result is Float.
+EFFECTS  inferred. fail is catchable. io fs net time rand need a host grant: ore run --allow io,fs
+LIBRARY (data last)
+ list  map f  filter f  fold f init  scan f init  sum  prod  len  rev  sort  sortby f  take n  drop n  zip a b  enum
+       any f  all f  find f  first  last  min  max  minby f  maxby f  uniq  flat  flatmap f  group f  count  chunk n  win n
+       join sep  has x  at i  range a b
+ text  words  lines  split sep  trim  lower  upper  chars  str x  int x  float x  starts p  ends p  replace a b
+ map   keys  vals  pairs  get k  put k v  del k  tomap pairs  mapv f
+ num   abs  sqrt  floor  ceil  round
+ other id  fail msg  json s  tojson x
+ host  print x (io)  stdin (io)  read path (fs)  write path s (fs)  http url (net)  now (time)  rand (rand)
+ These fail when there is no answer: find first last min max at @ get int float sqrt json.
+ group f gives Map key [items]; count gives Map item n; maps keep insertion order.
+EXAMPLES
+ top3 s = s | lower | words | count | pairs | sortby (-_.1) | take 3 | map (_.0)
+ qs [] = []
+ qs [p, ..t] = qs (filter (_<p) t) ++ [p] ++ qs (filter (_>=p) t)
+ type Shape = Circle Float | Rect Float Float
+ area s = match s {Circle r => 3.14159*r*r, Rect w h => w*h}
+ row r = {shape: r@1, ft: float r@2, qty: int r@3}
+ tons csv = csv | lines | drop 1 | map (split "," >> row) | group (_.shape) | mapv (map lbs >> sum >> (_/2000))
+ safe s = int s catch 0
+ main = stdin | lines | map int | sum | print
+CHECK  ore check prints JSON lines. Apply each "fix" exactly, then check again.

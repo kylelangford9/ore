@@ -1,0 +1,6 @@
+;; tons by shape from a takeoff CSV: mark,shape,ft,qty
+wt = {"W8x10": 10, "W10x22": 22, "W12x26": 26}
+row r = {shape: r@1, ft: float r@2, qty: int r@3}
+lbs r = get r.shape wt * r.ft * r.qty
+tons csv = csv | lines | drop 1 | map (split "," >> row) | group (_.shape) | mapv (map lbs >> sum >> (_/2000))
+test tons "mark,shape,ft,qty\nB1,W8x10,20,4\nB2,W12x26,30,2\nB3,W8x10,10,2" == {"W8x10": 0.5, "W12x26": 0.78}

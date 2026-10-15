@@ -1,0 +1,7 @@
+fib n = n<2 ? n : fib (n-1) + fib (n-2)
+sign n if n<0 = -1
+sign 0 = 0
+sign _ = 1
+test fib 10 == 55
+test map fib (0..8) == [0,1,1,2,3,5,8,13]
+test map sign [-5,0,7] == [-1,0,1]
